@@ -1,0 +1,8 @@
+{
+  "name": "html2mp4",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": { "html2mp4": "html2mp4.mjs" },
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}

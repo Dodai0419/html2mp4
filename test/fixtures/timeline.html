@@ -1,0 +1,9 @@
+<!doctype html>
+<html><body style="margin:0">
+<div data-composition-id="main" data-duration="2" data-width="400" data-height="240" id="r" style="width:400px;height:240px"></div>
+<script>
+const r = document.getElementById('r');
+const draw = t => { const v = Math.round(255 * Math.min(1, t / 1.9)); r.style.background = `rgb(${v},${v},${v})`; };
+window.__timelines = { main: { seek: draw } };
+draw(0);
+</script></body></html>

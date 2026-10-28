@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>title card: a 2 s renderFrame-contract scene</title>
+<style>html, body { margin: 0; background: #111; overflow: hidden; } canvas { display: block; }</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// renderFrame contract (code-video-showcase style): window.renderFrame(t), window.DURATION, window.__ready.
+// Text comes from the URL: title-card.html?first=Want%20a&keyword=launch%20film%3F&color=%23ffcf5c
+const q = new URLSearchParams(location.search);
+const FIRST = q.get('first') ?? 'Want a', KEY = q.get('keyword') ?? 'launch film?', ACCENT = q.get('color') ?? '#ffcf5c';
+const g = document.getElementById('c').getContext('2d');
+const W = 1920, H = 1080;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const outCubic = p => 1 - Math.pow(1 - clamp(p), 3);
+
+window.DURATION = 2;
+window.renderFrame = t => {
+  // impact: a white flash and a scale-down on the beat, then a slow push in
+  const flash = t < 0.12 ? 0.85 * (1 - t / 0.12) : 0;
+  const scale = (1.13 - 0.13 * outCubic(t / 0.32)) * (1 + 0.05 * clamp((t - 0.4) / 1.6));
+  const shake = t < 0.16 ? 14 * (1 - t / 0.16) : 0;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.fillStyle = ACCENT; g.fillRect(0, 0, W, H);
+  g.setTransform(scale, 0, 0, scale, W / 2 * (1 - scale) + shake * Math.sin(t * 220), H / 2 * (1 - scale) + shake * Math.cos(t * 170));
+  g.fillStyle = '#111';
+  g.font = '700 120px "Segoe UI", Arial, sans-serif'; g.fillText(FIRST, 160, 430);
+  g.font = '900 230px "Segoe UI", Arial, sans-serif';
+  const shown = KEY.slice(0, Math.ceil(KEY.length * clamp((t - 0.15) / 0.6)));   // typed in
+  g.fillText(shown, 150, 680);
+  g.fillRect(160, 760, 600 * outCubic((t - 0.5) / 0.8), 14);
+  g.font = '500 34px Consolas, "Courier New", monospace'; g.fillText('STYLE 03 / 11', 160, 900);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  if (flash) { g.fillStyle = `rgba(255,255,255,${flash})`; g.fillRect(0, 0, W, H); }
+};
+document.fonts.ready.then(() => { window.renderFrame(0); window.__ready = true; });
+</script>
+</body>
+</html>

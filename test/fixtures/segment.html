@@ -1,0 +1,8 @@
+<!doctype html>
+<html><body style="margin:0">
+<script>
+const p = new URLSearchParams(location.search);
+const ok = p.get('seg') === '1' && p.get('t0') === '0.6' && p.get('speed') === '2' && p.get('dur') === '3';
+window.renderFrame = () => { document.body.style.background = ok ? '#00ff00' : '#ff0000'; };
+window.__ready = true;
+</script></body></html>

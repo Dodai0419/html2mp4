@@ -1,0 +1,8 @@
+<!doctype html>
+<html><body style="margin:0"><canvas id="c" width="320" height="180"></canvas>
+<script>
+const g = document.getElementById('c').getContext('2d');
+window.DURATION = 1;
+window.renderFrame = t => { g.fillStyle = t < 0.5 ? '#ff0000' : '#0000ff'; g.fillRect(0, 0, 320, 180); };
+window.__ready = true;
+</script></body></html>

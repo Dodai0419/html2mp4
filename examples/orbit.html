@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>orbit: a 4 s timeline-contract scene</title>
+<style>
+  html, body { margin: 0; background: #0f1020; overflow: hidden; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<!-- HyperFrames-style root: html2mp4 reads duration and size from these attributes -->
+<div data-composition-id="main" data-duration="4" data-width="1280" data-height="720">
+  <canvas id="c" width="1280" height="720"></canvas>
+</div>
+<script>
+// render(t) draws the whole frame from t alone, so any frame can be rendered in any order.
+const ctx = document.getElementById('c').getContext('2d');
+const W = 1280, H = 720, D = 4;
+const ease = p => 1 - Math.pow(1 - Math.min(1, Math.max(0, p)), 3);
+const COLORS = ['#ff6b6b', '#ffd166', '#06d6a0', '#4cc9f0', '#b388ff'];
+
+function render(t) {
+  ctx.fillStyle = '#0f1020'; ctx.fillRect(0, 0, W, H);
+  // rings
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 5; i++) {
+    ctx.strokeStyle = `rgba(255,255,255,${0.06 + 0.04 * i})`;
+    ctx.beginPath(); ctx.arc(W * 0.66, H / 2, 70 + i * 52, 0, Math.PI * 2); ctx.stroke();
+  }
+  // planets: one full turn per D seconds, so t = D looks like t = 0
+  COLORS.forEach((c, i) => {
+    const a = 2 * Math.PI * ((i + 1) * t / D + i / 5);
+    const r = 70 + i * 52, x = W * 0.66 + r * Math.cos(a), y = H / 2 + r * Math.sin(a);
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, 12 + i * 2, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.fillStyle = '#fff7d6'; ctx.beginPath(); ctx.arc(W * 0.66, H / 2, 34 + 4 * Math.sin(2 * Math.PI * 2 * t / D), 0, Math.PI * 2); ctx.fill();
+  // headline slides in, then the counter ticks
+  const p = ease(t / 0.8);
+  ctx.globalAlpha = p; ctx.fillStyle = '#ffffff';
+  ctx.font = '800 64px "Segoe UI", Arial, sans-serif';
+  ctx.fillText('Frame-exact', 80 - 40 * (1 - p), 300);
+  ctx.fillStyle = '#ffd166'; ctx.fillText('HTML video', 80 - 40 * (1 - p), 380);
+  ctx.globalAlpha = 1; ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '500 26px Consolas, "Courier New", monospace';
+  ctx.fillText(`t = ${t.toFixed(2)} s   frame ${String(Math.round(t * 30)).padStart(3, '0')}`, 80, 450);
+}
+
+// the timeline contract: html2mp4 calls seek(t) on every entry of window.__timelines
+let now = 0;
+window.__timelines = { main: { seek(t) { now = t; render(t); } } };
+render(0);
+// open the file in a browser to watch it play live
+if (!navigator.webdriver && !/HeadlessChrome|HeadlessEdg/.test(navigator.userAgent)) {
+  const t0 = performance.now();
+  (function loop() { render(((performance.now() - t0) / 1000) % D); requestAnimationFrame(loop); })();
+}
+</script>
+</body>
+</html>
